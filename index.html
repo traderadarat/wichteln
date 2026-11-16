@@ -260,6 +260,7 @@ input.pin{letter-spacing:.45em;font-variant-numeric:tabular-nums;font-size:22px;
 .reveal-col > h2{font-size:clamp(28px,8vw,40px);font-weight:800;letter-spacing:-0.02em}
 .mywish{display:flex;flex-direction:column;gap:10px}
 .lead-dark{color:var(--muted)}
+.fact:only-child{grid-column:1 / -1}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
@@ -644,7 +645,7 @@ function showReveal(r){
   $("#rvPostmark").innerHTML = `Wichtel&shy;post<br>gezogen<br>${esc(String(r.drawnAt || "").split(" ")[0])}`;
   const b = String(r.budget || "").trim();
   $("#rvFacts").innerHTML =
-    `<div class="fact"><span>Budget</span><strong>${b ? "max. " + esc(b) + " €" : "frei"}</strong></div>` +
+    (b ? `<div class="fact"><span>Budget</span><strong>max. ${esc(b)} €</strong></div>` : "") +
     `<div class="fact"><span>Bescherung</span><strong>${r.date ? esc(r.date) : "folgt"}</strong></div>`;
   $("#rvWish").innerHTML = r.wishes
     ? `<span>Wünsche und Hinweise von ${esc(r.recipient)}</span><p style="white-space:pre-line">${esc(r.wishes)}</p>`
