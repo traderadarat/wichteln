@@ -114,7 +114,7 @@ h3{font-size:19px;font-weight:700}
 
 label{font-weight:700;font-size:15px}
 .field{display:flex;flex-direction:column;gap:6px;min-width:0}
-input[type=text],input[type=tel],input[type=number],input[type=date],textarea,select{
+input[type=text],input[type=tel],input[type=number],input[type=date],input[type=password],textarea,select{
   font:inherit;font-size:17px;color:var(--ink);background:var(--soft);border:1px solid var(--line);
   border-radius:10px;padding:10px 12px;width:100%;min-height:46px}
 textarea{resize:vertical}
@@ -244,653 +244,465 @@ details .inner{display:flex;flex-direction:column;gap:12px}
   .envelope,.env-flap,.seal,.bar > i{transition:none}
   .letter.rise{animation:none}
 }
+
+/* ---------- Selbst-Anmeldung ---------- */
+.countdown{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:10px 14px;font-weight:700}
+.countdown b{font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
+.countdown span{opacity:.9}
+.names{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
+.names li{padding:6px 12px;border-radius:999px;font-weight:700;background:var(--soft);border:1px solid var(--line);border-left:5px solid var(--seal)}
+.names li:nth-child(3n+2){border-left-color:var(--pine)}
+.names li:nth-child(3n){border-left-color:var(--gold)}
+.ok-box{background:var(--soft);border:1px solid var(--pine);border-left:6px solid var(--pine);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.ok-box strong{color:var(--pine);font-size:18px}
+input.pin{letter-spacing:.45em;font-variant-numeric:tabular-nums;font-size:22px;max-width:190px}
+.reveal-col{display:flex;flex-direction:column;gap:16px}
+.reveal-col > h2{font-size:clamp(28px,8vw,40px);font-weight:800;letter-spacing:-0.02em}
+.mywish{display:flex;flex-direction:column;gap:10px}
+.lead-dark{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
 
-<!-- ================= ORGANISATOR ================= -->
-<main class="wrap" id="org">
+<main class="wrap" id="app">
   <header class="hero">
     <canvas class="snow" aria-hidden="true"></canvas>
     <span class="kicker">🎄 Wichteln</span>
-    <h1 id="orgTitle">Familien-Wichteln 2026</h1>
+    <h1 id="title">Wichteln</h1>
     <ul class="hero-chips" aria-label="Eckdaten">
       <li id="chipBudget"></li>
       <li id="chipDate"></li>
       <li id="chipCount"></li>
     </ul>
-    <p class="lead">Lose ziehen und jeder Person ihren eigenen Link per WhatsApp schicken. Jede Person sieht nur, wen sie selbst beschenkt. Auch du als Organisator siehst es nicht, du kannst also mitspielen.</p>
+    <div class="countdown" id="countdown" hidden></div>
   </header>
 
-  <section class="card s1" aria-labelledby="s1">
-    <h2 class="step-h" id="s1"><span class="num">1</span>Wer macht mit?</h2>
-    <div class="notice calm" id="exBanner">
-      <p>Das sind Beispiel-Namen, damit du siehst, wie es aussieht.</p>
-      <div class="row"><button class="btn" type="button" id="clearEx">Beispiele entfernen</button></div>
-    </div>
-    <ul class="people" id="people"></ul>
-    <div class="row">
-      <button class="btn" type="button" id="addPerson">+ Person hinzufügen</button>
-    </div>
-    <details>
-      <summary>Ganze Namensliste auf einmal einfügen</summary>
-      <div class="inner">
-        <div class="field">
-          <label for="bulk">Ein Name pro Zeile (oder mit Komma getrennt)</label>
-          <textarea id="bulk" rows="4" placeholder="Oma Rosi&#10;Opa Hans&#10;Lisa"></textarea>
-        </div>
-        <div class="row"><button class="btn" type="button" id="bulkAdd">Namen übernehmen</button></div>
-      </div>
-    </details>
-    <p class="small muted">Ohne Telefonnummer wählst du den Kontakt beim Senden in WhatsApp selbst aus. Wünsche und Hinweise sieht nur die Person, die diesen Menschen beschenkt.</p>
+  <section class="card" id="vLoading"><p>Lade eure Wichtelrunde …</p></section>
+
+  <section class="card" id="vNoCode" hidden>
+    <h2 class="step-h">Bitte den Familien-Link verwenden</h2>
+    <p>Öffne den Link, den du in der Familiengruppe in WhatsApp bekommen hast. Nur damit kommst du in eure Wichtelrunde.</p>
   </section>
 
-  <section class="card s2" aria-labelledby="s2">
-    <h2 class="step-h" id="s2"><span class="num">2</span>Regeln</h2>
-    <div class="field">
-      <label for="event">Name der Runde (steht als Überschrift oben und in jedem Link)</label>
-      <input type="text" id="event" maxlength="40" placeholder="Familien-Wichteln 2026">
-    </div>
-    <div class="grid2">
-      <div class="field">
-        <label for="budget">Budget pro Geschenk (€)</label>
-        <input type="number" id="budget" min="0" step="1" inputmode="numeric" placeholder="25">
-      </div>
-      <div class="field">
-        <label for="date">Bescherung am</label>
-        <input type="date" id="date">
-      </div>
-    </div>
-    <div class="field">
-      <label for="note">Notiz für alle</label>
-      <textarea id="note" rows="2" maxlength="160" placeholder="z. B. Treffen bei Oma, 17 Uhr. Selbstgemachtes ist ausdrücklich erlaubt."></textarea>
-    </div>
-
-    <div class="field">
-      <h3>Wer soll sich nicht ziehen?</h3>
-      <p class="small muted">Zum Beispiel Paare, die sich sowieso beschenken. Die beiden ziehen sich dann gegenseitig nicht.</p>
-    </div>
-    <div class="exrow">
-      <select id="exA" aria-label="Erste Person"></select>
-      <span class="and">und</span>
-      <select id="exB" aria-label="Zweite Person"></select>
-    </div>
-    <div class="row"><button class="btn" type="button" id="exAdd">Ausschluss hinzufügen</button></div>
-    <p class="msg" id="exMsg" role="alert"></p>
-    <ul class="chips" id="exList"></ul>
-
-    <label class="check" for="noMutual">
-      <input type="checkbox" id="noMutual">
-      <span>Niemand beschenkt sich gegenseitig (wenn Lisa Max beschenkt, beschenkt Max nicht Lisa)</span>
-    </label>
+  <section class="card" id="vOffline" hidden>
+    <h2 class="step-h">Keine Verbindung</h2>
+    <p>Die Wichtelrunde lässt sich gerade nicht laden. Prüf deine Internetverbindung und versuch es noch einmal.</p>
+    <div class="row"><button class="btn" type="button" id="retry">Nochmal versuchen</button></div>
   </section>
 
-  <section class="card s3" aria-labelledby="s3">
-    <h2 class="step-h" id="s3"><span class="num">3</span>Ziehen und verschicken</h2>
-    <div id="drawArea"></div>
-    <div class="notice" id="fallback" hidden>
-      <p><strong>Kopieren hat nicht geklappt.</strong> Halte den Text gedrückt (oder Strg+A, Strg+C) und kopiere ihn selbst:</p>
-      <textarea id="fallbackText" rows="5" readonly aria-label="Text zum Kopieren"></textarea>
-    </div>
-    <details>
-      <summary>Erweitert</summary>
-      <div class="inner">
+  <!-- ===== Anmeldung offen ===== -->
+  <section class="card s1" id="vRegister" hidden aria-labelledby="h1reg">
+    <h2 class="step-h" id="h1reg"><span class="num">1</span>Mitmachen</h2>
+    <form id="regForm" novalidate>
+      <div style="display:flex;flex-direction:column;gap:14px">
         <div class="field">
-          <label for="baseUrl">Adresse dieser Seite (für die persönlichen Links)</label>
-          <input type="text" id="baseUrl" inputmode="url" autocomplete="off" spellcheck="false">
-          <p class="small muted">Nur ändern, wenn du die Seite woanders hochlädst, zum Beispiel auf deine eigene Homepage.</p>
+          <label for="rName">Dein Name</label>
+          <input type="text" id="rName" maxlength="40" autocomplete="given-name" placeholder="z. B. Lisa">
         </div>
-        <div id="allList"></div>
+        <div class="field">
+          <label for="rWishes">Deine Wünsche und Hinweise</label>
+          <textarea id="rWishes" rows="3" maxlength="400" placeholder="z. B. Bücher, Größe M, bitte nichts Süßes"></textarea>
+          <p class="small muted">Das sieht nur, wer dich zieht. Du kannst es jederzeit ändern, auch nach der Auslosung.</p>
+        </div>
+        <div class="field">
+          <label for="rAvoid">Wen sollst du nicht ziehen?</label>
+          <input type="text" id="rAvoid" list="namesList" maxlength="40" placeholder="leer lassen, wenn egal">
+          <datalist id="namesList"></datalist>
+          <p class="small muted">Zum Beispiel deine Partnerin oder deinen Partner. Ihr zieht euch dann gegenseitig nicht.</p>
+        </div>
+        <div class="field">
+          <label for="rPin">Deine PIN (4 Ziffern, selbst ausgedacht)</label>
+          <input class="pin" type="password" id="rPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off">
+          <p class="small muted">Merk sie dir gut. Mit Name und PIN siehst du nach der Auslosung, wen du beschenkst.</p>
+        </div>
+        <label class="check" for="rShow"><input type="checkbox" id="rShow"><span>PIN anzeigen</span></label>
+        <div class="row"><button class="btn primary big" type="submit" id="rSubmit">Ich bin dabei</button></div>
+        <p class="msg" id="rMsg" role="alert"></p>
+      </div>
+    </form>
+    <div class="ok-box" id="rOk" hidden aria-live="polite"></div>
+    <details>
+      <summary>Schon angemeldet? Ändern oder abmelden</summary>
+      <div class="inner">
+        <p class="small muted">Gib oben deinen Namen und deine PIN ein. „Meine Angaben laden“ holt deine Wünsche ins Formular, gespeichert wird mit „Ich bin dabei“.</p>
+        <div class="row">
+          <button class="btn" type="button" id="rLoad">Meine Angaben laden</button>
+          <button class="btn" type="button" id="rLeave">Abmelden</button>
+        </div>
       </div>
     </details>
   </section>
 
-  <section class="how" aria-labelledby="how">
-    <h2 id="how">So funktioniert’s</h2>
+  <section class="card s2" id="vNames" hidden aria-labelledby="h2names">
+    <h2 class="step-h" id="h2names"><span class="num">2</span>Dabei sind</h2>
+    <ul class="names" id="namesUl"></ul>
+    <p class="muted" id="namesHint"></p>
+  </section>
+
+  <section class="card s3" id="vWhen" hidden aria-labelledby="h3when">
+    <h2 class="step-h" id="h3when"><span class="num">3</span>Auslosung</h2>
+    <p id="whenText"></p>
+    <p class="muted" id="noteText" hidden></p>
+  </section>
+
+  <!-- ===== Nach der Auslosung ===== -->
+  <section class="card s1" id="vLogin" hidden aria-labelledby="hlogin">
+    <h2 class="step-h" id="hlogin">Wen beschenkst du?</h2>
+    <p class="lead-dark">Die Lose sind gezogen. Wähl deinen Namen und gib deine PIN ein.</p>
+    <form id="loginForm" novalidate>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="field">
+          <label for="lName">Dein Name</label>
+          <select id="lName"></select>
+        </div>
+        <div class="field">
+          <label for="lPin">Deine PIN</label>
+          <input class="pin" type="password" id="lPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off">
+        </div>
+        <div class="row"><button class="btn primary big" type="submit" id="lSubmit">Umschlag holen</button></div>
+        <p class="msg" id="lMsg" role="alert"></p>
+      </div>
+    </form>
+    <p class="small muted">PIN vergessen? Sag dem Organisator Bescheid, er kann dir eine neue geben.</p>
+  </section>
+
+  <section class="reveal-col" id="vReveal" hidden>
+    <h2>Wichtelpost für <span id="rvGiver"></span></h2>
+    <div id="closedPart">
+      <div class="envelope" id="env">
+        <div class="env-back"></div>
+        <div class="env-front"></div>
+        <div class="env-bottom"></div>
+        <p class="env-to"><small>An</small><span id="rvTo"></span></p>
+        <div class="env-flap"></div>
+        <button class="seal" id="seal" type="button" aria-label="Siegel brechen und Umschlag öffnen">W</button>
+      </div>
+      <p class="tap" style="margin-top:14px">Tippe aufs rote Siegel.</p>
+    </div>
+
+    <article class="letter" id="letter" tabindex="-1" hidden aria-live="polite">
+      <div class="letter-top">
+        <p class="label">Du beschenkst</p>
+        <div class="postmark" id="rvPostmark"></div>
+      </div>
+      <p class="recipient" id="rvRecipient"></p>
+      <div class="facts" id="rvFacts"></div>
+      <div class="wish" id="rvWish"></div>
+      <div class="wish" id="rvNote" style="border-left-color:var(--seal)" hidden></div>
+      <p class="psst">Psst, nicht verraten! 🤫</p>
+      <div class="row" style="justify-content:center">
+        <button class="btn" type="button" id="closeAgain">Umschlag wieder zumachen</button>
+      </div>
+    </article>
+
+    <section class="card s2 mywish" aria-labelledby="hmywish">
+      <h2 class="step-h" id="hmywish">Deine eigenen Wünsche</h2>
+      <p class="small muted">Wer dich gezogen hat, sieht immer den aktuellen Stand.</p>
+      <label for="myWishes" class="sr">Deine Wünsche</label>
+      <textarea id="myWishes" rows="3" maxlength="400"></textarea>
+      <div class="row"><button class="btn primary" type="button" id="saveWishes">Wünsche speichern</button></div>
+      <p class="msg" id="wMsg" role="alert"></p>
+      <div class="ok-box" id="wOk" hidden aria-live="polite"><strong>✓ Gespeichert</strong><span>Dein Wichtel sieht ab jetzt die neuen Wünsche.</span></div>
+    </section>
+
+    <div class="row" style="justify-content:center"><button class="btn link" type="button" id="logout">Fertig</button></div>
+  </section>
+
+  <section class="card" id="vError" hidden>
+    <div class="notice"><p id="errText"></p></div>
+    <div class="row"><button class="btn" type="button" id="retry2">Seite neu laden</button></div>
+  </section>
+
+  <section class="card" id="vCleaned" hidden>
+    <h2 class="step-h">Das Wichteln ist vorbei</h2>
+    <p>Alle Daten wurden gelöscht. Danke fürs Mitmachen!</p>
+  </section>
+
+  <section class="how" aria-labelledby="ds">
+    <h2 id="ds">🔒 Datenschutz</h2>
     <ul>
-      <li>Wer wen beschenkt, steckt unleserlich verpackt im persönlichen Link. Es gibt keinen Server und keine Anmeldung.</li>
-      <li>Deine Eingaben bleiben nur in diesem Browser gespeichert. Am selben Gerät kannst du später weitermachen, etwa um einen Link nochmal zu schicken.</li>
-      <li>Öffne keine fremden Links, sonst kennst du die Überraschung. Absolut geheim wie ein Tresor ist es nicht: Wer es drauf anlegt, könnte einen Link entschlüsseln. Für die Familie reicht es.</li>
+      <li>Gespeichert werden nur dein Name, deine Wünsche und deine PIN (unlesbar gemacht), in einer privaten Tabelle im Google-Konto des Organisators.</li>
+      <li>Deine Wünsche sieht nur, wer dich zieht. Keine Telefonnummer, keine E-Mail-Adresse, kein Konto, keine Cookies, keine Werbung.</li>
+      <li>Dein Browser merkt sich nur den Familien-Link und deinen Namen, damit du sie nicht neu eingeben musst.</li>
+      <li>Die Seite liegt bei GitHub, die Anmeldungen laufen über Google. Wie bei jeder Website sehen beide dabei deine IP-Adresse.</li>
+      <li id="delLine">Nach dem Wichteln wird alles gelöscht.</li>
     </ul>
   </section>
-</main>
-
-<!-- ================= WICHTELPOST ================= -->
-<main class="reveal" id="reveal" hidden>
-  <header class="hero">
-    <canvas class="snow" aria-hidden="true"></canvas>
-    <span class="kicker" id="rvEvent">Wichteln</span>
-    <h1>Wichtelpost für <span id="rvGiver"></span></h1>
-  </header>
-
-  <div id="closedPart">
-    <div class="envelope" id="env">
-      <div class="env-back"></div>
-      <div class="env-front"></div>
-      <div class="env-bottom"></div>
-      <p class="env-to"><small>An</small><span id="rvTo"></span></p>
-      <div class="env-flap"></div>
-      <button class="seal" id="seal" type="button" aria-label="Siegel brechen und Umschlag öffnen">W</button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px">
-      <p class="tap">Tippe aufs rote Siegel, um zu sehen, wen du beschenkst.</p>
-      <p class="facts-line" id="rvFactsLine"></p>
-      <p class="notme">Du bist nicht <span id="rvNot"></span>? Dann schließ die Seite bitte gleich, sonst ist die Überraschung weg.</p>
-    </div>
-  </div>
-
-  <article class="letter" id="letter" tabindex="-1" hidden aria-live="polite">
-    <div class="letter-top">
-      <p class="label">Du beschenkst</p>
-      <div class="postmark" id="rvPostmark"></div>
-    </div>
-    <p class="recipient" id="rvRecipient"></p>
-    <div class="facts" id="rvFacts"></div>
-    <div class="wish" id="rvWish"></div>
-    <div class="wish" id="rvNote" style="border-left-color:var(--seal)"></div>
-    <p class="psst">Psst, nicht verraten! 🤫</p>
-    <div class="row" style="justify-content:center">
-      <button class="btn" type="button" id="closeAgain">Umschlag wieder zumachen</button>
-    </div>
-  </article>
-
-  <p class="foot"><a href="#start">Selbst ein Wichteln organisieren</a></p>
-</main>
-
-<!-- ================= KAPUTTER LINK ================= -->
-<main class="reveal" id="broken" hidden>
-  <p class="eyebrow">Wichteln</p>
-  <h1>Dieser Link ist unvollständig</h1>
-  <p class="lead">Wahrscheinlich wurde beim Kopieren ein Stück abgeschnitten. Öffne den Link direkt aus der WhatsApp-Nachricht oder bitte den Organisator, ihn nochmal zu schicken.</p>
-  <p class="foot"><a href="#start">Zur Startseite</a></p>
 </main>
 
 <canvas id="confetti" aria-hidden="true" hidden></canvas>
 
 <script>
-// ================= CONFIG: neutrale Voreinstellungen, hier anpassen =================
+// ================= CONFIG =================
 const CONFIG = {
-  defaultEvent: "Familien-Wichteln 2026",  // Überschrift beim ersten Öffnen; im Feld „Name der Runde“ änderbar
-  defaultBudget: "25",
-  defaultDate: "2026-12-24",
-  baseUrl: ""                                // leer = Adresse dieser Seite wird automatisch verwendet
+  apiUrl: "https://script.google.com/macros/s/AKfycbzh5diYU7pO9v_zrgoR2X0VdDWXBHQLrlKgI0PNIjFVzYbrrmb4-539BmF2IoqmMFas3w/exec"   // Adresse der Google-Web-App
 };
 
-/* LOGIC START */
-// --- Base32 (nur Kleinbuchstaben und Ziffern, damit der Link überall heil ankommt)
-const B32 = "abcdefghijklmnopqrstuvwxyz234567";
-function b32enc(bytes){
-  let bits = 0, val = 0, out = "";
-  for (const b of bytes){
-    val = (val << 8) | b; bits += 8;
-    while (bits >= 5){ out += B32[(val >> (bits - 5)) & 31]; bits -= 5; }
-    val &= (1 << bits) - 1;
-  }
-  if (bits > 0) out += B32[(val << (5 - bits)) & 31];
-  return out;
-}
-function b32dec(str){
-  let bits = 0, val = 0; const out = [];
-  for (const ch of str){
-    const i = B32.indexOf(ch); if (i < 0) return null;
-    val = (val << 5) | i; bits += 5;
-    if (bits >= 8){ out.push((val >> (bits - 8)) & 255); bits -= 8; }
-    val &= (1 << bits) - 1;
-  }
-  return new Uint8Array(out);
-}
-// --- Verschleiern: zufälliges Salz + XOR + Prüfsumme (kein echter Tresor, aber nicht lesbar)
-const KEY = "Wichtel-Familie";
-function ks(salt, i){ return (salt * 73 + i * 29 + KEY.charCodeAt(i % KEY.length) * 7) & 255; }
-function encodePayload(p){
-  const arr = [1, p.giver, p.recipient, p.hint || "", String(p.budget ?? ""), p.date || "", p.event || "", p.note || "", p.at || ""];
-  const data = new TextEncoder().encode(JSON.stringify(arr));
-  let sum = 0; for (const b of data) sum = (sum + b) & 255;
-  const salt = Math.floor(Math.random() * 256);
-  const out = new Uint8Array(data.length + 2);
-  out[0] = salt;
-  for (let i = 0; i < data.length; i++) out[i + 1] = data[i] ^ ks(salt, i);
-  out[data.length + 1] = sum ^ salt;
-  return b32enc(out);
-}
-function decodePayload(code){
-  const bytes = b32dec(String(code).toLowerCase().replace(/[^a-z2-7]/g, ""));
-  if (!bytes || bytes.length < 4) return null;
-  const salt = bytes[0], n = bytes.length - 2, data = new Uint8Array(n);
-  let sum = 0;
-  for (let i = 0; i < n; i++){ data[i] = bytes[i + 1] ^ ks(salt, i); sum = (sum + data[i]) & 255; }
-  if ((sum ^ salt) !== bytes[n + 1]) return null;
-  try{
-    const a = JSON.parse(new TextDecoder().decode(data));
-    if (!Array.isArray(a) || a[0] !== 1 || !a[1] || !a[2]) return null;
-    return { giver:a[1], recipient:a[2], hint:a[3] || "", budget:a[4] || "", date:a[5] || "", event:a[6] || "", note:a[7] || "", at:a[8] || "" };
-  }catch(e){ return null; }
-}
-// --- Ziehung
-function shuffle(a){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-function drawPairs(ids, exclusions, noMutual){
-  const banned = new Set();
-  for (const [a, b] of exclusions){ banned.add(a + "|" + b); banned.add(b + "|" + a); }
-  const allowed = (g, r) => g !== r && !banned.has(g + "|" + r);
-  // 1) Zufällige Reihenfolgen probieren: gleichverteilt, fair
-  for (let t = 0; t < 4000; t++){
-    const perm = shuffle(ids.slice()), assign = {};
-    ids.forEach((g, i) => { assign[g] = perm[i]; });
-    let good = true;
-    for (const g of ids){
-      const r = assign[g];
-      if (!allowed(g, r) || (noMutual && assign[r] === g)){ good = false; break; }
-    }
-    if (good) return assign;
-  }
-  // 2) Systematisch suchen, falls viele Ausschlüsse es eng machen
-  const opts = g => ids.filter(r => allowed(g, r)).length;
-  for (let attempt = 0; attempt < 30; attempt++){
-    const order = shuffle(ids.slice()).sort((a, b) => opts(a) - opts(b));
-    const assign = {}, used = new Set(); let steps = 0;
-    const dfs = k => {
-      if (k === order.length) return true;
-      if (++steps > 50000) return false;
-      const g = order[k];
-      for (const r of shuffle(ids.slice())){
-        if (used.has(r) || !allowed(g, r)) continue;
-        if (noMutual && assign[r] === g) continue;
-        assign[g] = r; used.add(r);
-        if (dfs(k + 1)) return true;
-        delete assign[g]; used.delete(r);
-      }
-      return false;
-    };
-    if (dfs(0)) return assign;
-  }
-  return null;
-}
-function runDraw(ids, exclusions, noMutual){
-  let a = drawPairs(ids, exclusions, noMutual);
-  if (a) return { assign:a, relaxed:false };
-  if (noMutual){ a = drawPairs(ids, exclusions, false); if (a) return { assign:a, relaxed:true }; }
-  return null;
-}
-function waNumber(raw){
-  let s = String(raw || "").replace(/[^\d+]/g, "");
-  if (!s) return "";
-  if (s.startsWith("+")) s = s.slice(1);
-  else if (s.startsWith("00")) s = s.slice(2);
-  else if (s.startsWith("0")) s = "43" + s.slice(1);   // österreichische Nummer: 0664 … → 43664 …
-  return s.replace(/\D/g, "");
-}
-function fmtDate(iso){
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
-  return m ? `${m[3]}.${m[2]}.${m[1]}` : "";
-}
-/* LOGIC END */
-
-// ================= App =================
-const BAKED_URL = CONFIG.baseUrl;
-const STORE = "familien-wichteln-v1";
-const MAX_HINT = 140;
+const STORE = "wichteln-v2";
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-let n_ = 0;
-const uid = () => "p" + Date.now().toString(36) + (n_++).toString(36) + Math.floor(Math.random() * 1296).toString(36);
-const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const lsGet = k => { try{ return localStorage.getItem(STORE + ":" + k) || ""; }catch(e){ return ""; } };
+const lsSet = (k, v) => { try{ localStorage.setItem(STORE + ":" + k, v); }catch(e){} };
 
-function newPerson(name){ return { id:uid(), name:name || "", phone:"", hint:"" }; }
-function defaultState(){
-  const people = [newPerson("Oma Rosi"), newPerson("Opa Hans"), newPerson("Lisa"), newPerson("Max"), newPerson("Sabine")];
-  people[2].hint = "Liest gern Krimis, trinkt viel Tee";
-  return {
-    v:1, event:CONFIG.defaultEvent, budget:CONFIG.defaultBudget, date:CONFIG.defaultDate, note:"",
-    noMutual:true, baseUrl:"", example:true, people,
-    exclusions:[[people[0].id, people[1].id]], draw:null
-  };
-}
-let state = defaultState();
-const ui = { confirmRedraw:false, showAll:false };
+let code = "", S = null, cur = null, cdTimer = null;
 
-function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
-function load(){
-  try{
-    const s = JSON.parse(localStorage.getItem(STORE) || "null");
-    if (s && s.v === 1 && Array.isArray(s.people)) return s;
-  }catch(e){}
-  return null;
+function readCode(){
+  const m = /^k-([a-z0-9]{6,40})$/i.exec(location.hash.slice(1));
+  if (m){ code = m[1].toLowerCase(); lsSet("k", code); }
+  else code = lsGet("k");
 }
-const person = id => state.people.find(p => p.id === id);
-const sig = () => JSON.stringify([
-  state.people.map(p => p.id).sort(),
-  state.exclusions.map(e => e.slice().sort().join("|")).sort(),
-  !!state.noMutual
-]);
 
-let framed = true;
-try{ framed = window.top !== window.self; }catch(e){ framed = true; }
-function baseUrl(){
-  const custom = (state.baseUrl || "").trim();
-  if (custom) return custom.split("#")[0];
-  if (!framed && /^https?:$/.test(location.protocol)) return location.href.split("#")[0];
-  return BAKED_URL;
-}
-function waHref(num, text){
-  const n = waNumber(num);
-  return `https://wa.me/${n}?text=${encodeURIComponent(text)}`;
-}
-function linkFor(gid){
-  const g = person(gid), r = person(state.draw.assign[gid]);
-  const code = encodePayload({
-    giver:g.name.trim(), recipient:r.name.trim(), hint:(r.hint || "").trim(),
-    budget:state.budget, date:state.date, event:(state.event || "").trim(),
-    note:(state.note || "").trim(), at:state.draw.at
+async function api(action, data){
+  const r = await fetch(CONFIG.apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(Object.assign({ action, k: code }, data || {}))
   });
-  return baseUrl() + "#w-" + code;
-}
-const eventName = () => (state.event || "").trim() || "Wichteln";
-function personalMsg(gid){
-  const g = person(gid);
-  return `Hallo ${g.name.trim()}! 🎁\nHier ist dein persönlicher Link fürs ${eventName()}:\n${linkFor(gid)}\n\nDer Link ist nur für dich. Bitte nicht weiterleiten.`;
-}
-function groupMsg(){
-  const parts = [`🎄 ${eventName()}`];
-  if (String(state.budget).trim()) parts.push(`Budget: max. ${String(state.budget).trim()} €`);
-  if (state.date) parts.push(`Bescherung: ${fmtDate(state.date)}`);
-  if ((state.note || "").trim()) parts.push(state.note.trim());
-  parts.push("Ich schicke jedem von euch gleich privat einen persönlichen Link. Dort steht, wen ihr beschenkt. Bitte nur den eigenen Link öffnen!");
-  return parts.join("\n");
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
 }
 
-// ---------- Rendern: Organisator ----------
-function renderPeople(){
-  const el = $("#people");
-  el.innerHTML = state.people.map((p, i) => `
-    <li class="person" data-id="${p.id}">
-      <div class="field"><label for="n_${p.id}">Name</label>
-        <input type="text" id="n_${p.id}" data-field="name" maxlength="40" value="${esc(p.name)}" placeholder="Name ${i + 1}" autocomplete="off"></div>
-      <div class="field phonef"><label for="t_${p.id}">Telefonnummer</label>
-        <input type="tel" id="t_${p.id}" data-field="phone" maxlength="24" value="${esc(p.phone)}" placeholder="0664 1234567" autocomplete="off"></div>
-      <button class="icon-btn rm" type="button" data-remove="${p.id}" aria-label="${esc(p.name || "Person")} entfernen">×</button>
-      <div class="field hintf"><label for="h_${p.id}">Wünsche und Hinweise</label>
-        <input type="text" id="h_${p.id}" data-field="hint" maxlength="${MAX_HINT}" value="${esc(p.hint)}" placeholder="z. B. mag Schokolade, Größe M, bitte nichts Elektronisches"></div>
-    </li>`).join("");
-  $("#exBanner").hidden = !state.example;
+const VIEWS = ["vLoading", "vNoCode", "vOffline", "vRegister", "vNames", "vWhen", "vLogin", "vReveal", "vError", "vCleaned"];
+function show(...ids){ VIEWS.forEach(v => { $("#" + v).hidden = !ids.includes(v); }); }
+
+function busy(btn, on, label){
+  if (on){ btn.dataset.label = btn.textContent; btn.textContent = label || "Moment …"; btn.disabled = true; }
+  else { btn.textContent = btn.dataset.label || btn.textContent; btn.disabled = false; }
 }
-function renderExclusions(){
-  const opts = state.people.filter(p => p.name.trim())
-    .map(p => `<option value="${p.id}">${esc(p.name.trim())}</option>`).join("");
-  const a = $("#exA"), b = $("#exB"), va = a.value, vb = b.value;
-  a.innerHTML = `<option value="">Person wählen</option>` + opts;
-  b.innerHTML = `<option value="">Person wählen</option>` + opts;
-  if (person(va)) a.value = va;
-  if (person(vb)) b.value = vb;
-  state.exclusions = state.exclusions.filter(([x, y]) => person(x) && person(y));
-  $("#exList").innerHTML = state.exclusions.map(([x, y], i) => {
-    const nx = person(x).name.trim() || "?", ny = person(y).name.trim() || "?";
-    return `<li class="chip">${esc(nx)} ↔ ${esc(ny)}<button type="button" data-unex="${i}" aria-label="Ausschluss ${esc(nx)} und ${esc(ny)} entfernen">×</button></li>`;
-  }).join("");
+const weekday = iso => { try{ return new Date(iso).toLocaleDateString("de-AT", { weekday:"long", timeZone:"Europe/Vienna" }); }catch(e){ return ""; } };
+const deadlineLabel = () => {
+  if (!S) return "";
+  const [d, t] = (S.deadlineText || "").split(/\s+/);
+  const wd = S.deadline ? weekday(S.deadline) : "";
+  return `${wd ? wd + ", " : ""}${d || ""}${t ? " um " + t + " Uhr" : ""}`;
+};
+
+// ---------- Laden ----------
+async function load(quiet){
+  readCode();
+  if (!code || !CONFIG.apiUrl){ show("vNoCode"); return; }
+  if (!quiet) show("vLoading");
+  let s;
+  try { s = await api("status"); }
+  catch(e){ if (!quiet) show("vOffline"); return; }
+  if (!s.ok){
+    if (s.code === "code") show("vNoCode");
+    else { $("#errText").textContent = s.error; show("vError"); }
+    return;
+  }
+  const changed = !S || S.open !== s.open || S.drawn !== s.drawn || S.cleaned !== s.cleaned || S.error !== s.error;
+  S = s;
+  renderHero(); renderNames(); renderWhen();
+  $("#delLine").textContent = S.deleteText ? `Am ${S.deleteText} wird automatisch alles gelöscht.` : "Nach dem Wichteln wird alles gelöscht.";
+  if (quiet && !changed) return;
+  if (s.cleaned) return show("vCleaned");
+  if (s.drawn){ if (!cur) { renderLogin(); show("vLogin", "vNames"); } return; }
+  if (s.error){ $("#errText").textContent = s.error; return show("vError", "vNames"); }
+  if (s.open){ if (!$("#rName").value) $("#rName").value = lsGet("name"); return show("vRegister", "vNames", "vWhen"); }
+  $("#errText").textContent = "Die Auslosung läuft gerade. Bitte lade die Seite in einer Minute neu.";
+  show("vError");
 }
-function fillSettings(){
-  $("#event").value = state.event || "";
-  $("#budget").value = state.budget || "";
-  $("#date").value = state.date || "";
-  $("#note").value = state.note || "";
-  $("#noMutual").checked = !!state.noMutual;
-  $("#baseUrl").value = state.baseUrl || "";
-  $("#baseUrl").placeholder = baseUrl() || "https://…";
-}
+
 function renderHero(){
-  $("#orgTitle").textContent = eventName();
-  const b = String(state.budget || "").trim();
+  $("#title").textContent = S.event || "Wichteln";
+  document.title = S.event || "Wichteln";
+  const b = String(S.budget || "").trim();
   $("#chipBudget").textContent = b ? `🎁 max. ${b} €` : "";
-  $("#chipDate").textContent = state.date ? `📅 ${fmtDate(state.date)}` : "";
-  const n = state.people.filter(p => p.name.trim()).length;
-  $("#chipCount").textContent = n ? `👪 ${n} ${n === 1 ? "Person" : "Personen"}` : "";
+  $("#chipDate").textContent = S.date ? `📅 Bescherung ${S.date}` : "";
+  $("#chipCount").textContent = `👪 ${S.count} dabei`;
+  const cd = $("#countdown");
+  clearInterval(cdTimer);
+  if (S.drawn){
+    cd.innerHTML = `<span>✓ Ausgelost am ${esc(S.drawnAt)}</span>`;
+    cd.hidden = false;
+  } else if (S.open && S.deadline){
+    const tick = () => {
+      const ms = new Date(S.deadline).getTime() - Date.now();
+      if (ms <= 0){ clearInterval(cdTimer); cd.innerHTML = "<span>Anmeldeschluss erreicht, die Lose werden gezogen …</span>"; setTimeout(() => load(true), 4000); return; }
+      const m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mi = m % 60;
+      const left = d > 0 ? `${d} ${d === 1 ? "Tag" : "Tage"} ${h} Std.` : h > 0 ? `${h} Std. ${mi} Min.` : `${Math.max(mi, 1)} Min.`;
+      cd.innerHTML = `<span>Anmeldeschluss in</span><b>${left}</b><span>${esc(deadlineLabel())}</span>`;
+    };
+    tick(); cdTimer = setInterval(tick, 30000);
+    cd.hidden = false;
+  } else cd.hidden = true;
 }
-function renderDraw(){
-  const box = $("#drawArea"), d = state.draw;
-  renderHero();
-  renderAll_list();
-  if (!d){
-    box.innerHTML = `
-      <p class="muted">Wenn alle Namen stehen, zieh die Lose. Du siehst danach nicht, wer wen hat.</p>
-      <div class="row"><button class="btn primary big" type="button" id="drawBtn">Lose ziehen</button></div>
-      <p class="msg" id="drawMsg" role="alert"></p>`;
-    return;
-  }
-  if (d.sig !== sig()){
-    box.innerHTML = `
-      <div class="notice"><p><strong>Die Teilnehmer oder Ausschlüsse haben sich geändert.</strong> Zieh bitte neu. Schon verschickte Links gelten dann nicht mehr, alle bekommen einen neuen.</p></div>
-      <div class="row"><button class="btn primary big" type="button" id="drawBtn">Neu ziehen</button></div>
-      <p class="msg" id="drawMsg" role="alert"></p>`;
-    return;
-  }
-  const base = baseUrl();
-  const total = state.people.length;
-  const sentCount = state.people.filter(p => d.sent[p.id]).length;
-  const pct = Math.round(sentCount / total * 100);
-  const rows = state.people.map(p => {
-    const sent = !!d.sent[p.id];
-    const hasNum = !!waNumber(p.phone);
-    return `
-      <li class="sendrow">
-        <div class="who"><span>${esc(p.name.trim())}</span>
-          <button type="button" class="pill ${sent ? "sent" : ""}" data-sent="${p.id}" aria-pressed="${sent}" title="Status umschalten">${sent ? "✓ verschickt" : "offen"}</button></div>
-        <div class="actions">
-          <a class="btn wa" data-wa="${p.id}" href="${esc(base ? waHref(p.phone, personalMsg(p.id)) : "#")}" target="_blank" rel="noopener" title="${hasNum ? "Öffnet den Chat mit " + esc(p.name.trim()) : "Kontakt in WhatsApp auswählen"}">WhatsApp</a>
-          <button class="btn" type="button" data-copy="${p.id}">Kopieren</button>
-        </div>
-      </li>`;
-  }).join("");
 
-  box.innerHTML = `
-    ${!base ? `<div class="notice"><p><strong>Die Adresse dieser Seite fehlt noch.</strong> Trag sie unten unter „Erweitert“ ein, sonst funktionieren die Links nicht.</p></div>` : ""}
-    <div class="progress">
-      <p><strong>${sentCount} von ${total}</strong> Links verschickt · gezogen am ${fmtDate(d.at)}</p>
-      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${sentCount}" aria-label="Verschickte Links"><i style="width:${pct}%"></i></div>
-    </div>
-    ${d.relaxed ? `<div class="notice"><p>Mit euren Ausschlüssen ging es nicht ohne gegenseitiges Beschenken. Zwei Personen könnten sich also gegenseitig beschenken.</p></div>` : ""}
-    <h3>Ankündigung für die Familiengruppe</h3>
-    <pre class="msgpreview">${esc(groupMsg())}</pre>
-    <div class="row">
-      <a class="btn wa" href="${esc(waHref("", groupMsg()))}" target="_blank" rel="noopener">In WhatsApp teilen</a>
-      <button class="btn" type="button" data-copygroup="1">Kopieren</button>
-    </div>
-    <h3>Persönliche Links, jeweils privat schicken</h3>
-    <p class="small muted">Nicht in die Gruppe! Jede Person bekommt nur ihren eigenen Link. Budget, Datum, Notiz und Wünsche kannst du noch ändern, das gilt für alle Links, die du danach schickst.</p>
-    <ul class="sendlist">${rows}</ul>
-    <div class="row">
-      ${ui.confirmRedraw
-        ? `<span><strong>Wirklich neu ziehen?</strong> Alle bisherigen Links werden ungültig.</span>
-           <button class="btn primary" type="button" id="redrawYes">Ja, neu ziehen</button>
-           <button class="btn" type="button" id="redrawNo">Abbrechen</button>`
-        : `<button class="btn link" type="button" id="redrawAsk">Neu ziehen</button>`}
-    </div>
-    <p class="msg" id="drawMsg" role="alert"></p>`;
+function renderNames(){
+  $("#namesUl").innerHTML = S.names.map(n => `<li>${esc(n)}</li>`).join("");
+  $("#namesHint").textContent = S.count === 0 ? "Noch niemand. Sei die oder der Erste!" : (S.count < 3 ? "Ab 3 Personen kann ausgelost werden." : "");
+  $("#namesHint").hidden = !$("#namesHint").textContent;
+  $("#namesList").innerHTML = S.names.map(n => `<option value="${esc(n)}"></option>`).join("");
 }
-function renderAll_list(){
-  const el = $("#allList"), d = state.draw;
-  if (!d || d.sig !== sig()){ el.innerHTML = ""; return; }
-  if (!ui.showAll){
-    el.innerHTML = `
-      <div class="field"><h3>Gesamtliste</h3>
-      <p class="small muted">Nur öffnen, wenn du selbst nicht mitspielst. Sonst kennst du die Zuteilung.</p></div>
-      <div class="row"><button class="btn" type="button" id="showAll">Ich spiele nicht mit, Liste zeigen</button></div>`;
-    return;
-  }
-  el.innerHTML = `
-    <h3>Gesamtliste</h3>
-    <ul class="alllist">${state.people.map(p => `<li>${esc(p.name.trim())} <span>beschenkt</span> ${esc(person(d.assign[p.id]).name.trim())}</li>`).join("")}</ul>
-    <div class="row"><button class="btn" type="button" id="hideAll">Liste wieder verbergen</button></div>`;
-}
-function renderOrganizer(){ renderPeople(); renderExclusions(); fillSettings(); renderDraw(); }
 
-// ---------- Kopieren ----------
-function copyText(text, btn){
-  const done = () => {
-    $("#fallback").hidden = true;
-    if (btn){ const old = btn.textContent; btn.textContent = "Kopiert ✓"; setTimeout(() => { btn.textContent = old; }, 1600); }
-  };
-  const fail = () => { $("#fallbackText").value = text; $("#fallback").hidden = false; $("#fallbackText").focus(); $("#fallbackText").select(); };
+function renderWhen(){
+  $("#whenText").textContent = `Am ${deadlineLabel()} lost die Seite automatisch aus. Danach kommst du hier mit Name und PIN zu deinem Umschlag.`;
+  const note = String(S.note || "").trim();
+  $("#noteText").textContent = note ? "Vom Organisator: " + note : "";
+  $("#noteText").hidden = !note;
+}
+
+function renderLogin(){
+  const sel = $("#lName"), remembered = lsGet("name");
+  sel.innerHTML = `<option value="">Bitte wählen</option>` + S.names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  const match = S.names.find(n => n.toLowerCase() === remembered.toLowerCase());
+  if (match) sel.value = match;
+}
+
+// ---------- Anmelden ----------
+$("#rShow").addEventListener("change", e => { $("#rPin").type = e.target.checked ? "text" : "password"; });
+
+$("#regForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("#rSubmit"), msg = $("#rMsg");
+  const name = $("#rName").value.trim(), pin = $("#rPin").value.trim();
+  msg.textContent = ""; $("#rOk").hidden = true;
+  if (!name){ msg.textContent = "Bitte gib deinen Namen ein."; $("#rName").focus(); return; }
+  if (!/^\d{4}$/.test(pin)){ msg.textContent = "Die PIN muss aus genau 4 Ziffern bestehen."; $("#rPin").focus(); return; }
+  busy(btn, true);
   try{
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail);
-    else fail();
-  }catch(e){ fail(); }
-}
-
-// ---------- Ereignisse: Organisator ----------
-$("#people").addEventListener("input", e => {
-  const t = e.target, row = t.closest("[data-id]"); if (!row) return;
-  const p = person(row.dataset.id); if (!p || !t.dataset.field) return;
-  p[t.dataset.field] = t.value;
-  if (state.example){ state.example = false; $("#exBanner").hidden = true; }
-  save();
-  if (t.dataset.field === "name") renderExclusions();
-  renderDraw();
-});
-$("#people").addEventListener("click", e => {
-  const b = e.target.closest("[data-remove]"); if (!b) return;
-  state.people = state.people.filter(p => p.id !== b.dataset.remove);
-  save(); renderPeople(); renderExclusions(); renderDraw();
-});
-$("#addPerson").addEventListener("click", () => {
-  const p = newPerson(""); state.people.push(p);
-  save(); renderPeople(); renderExclusions(); renderDraw();
-  const inp = document.getElementById("n_" + p.id); if (inp) inp.focus();
-});
-$("#clearEx").addEventListener("click", () => {
-  state.people = [newPerson(""), newPerson(""), newPerson("")];
-  state.exclusions = []; state.example = false; state.draw = null;
-  save(); renderOrganizer();
-  const first = document.querySelector("#people input"); if (first) first.focus();
-});
-$("#bulkAdd").addEventListener("click", () => {
-  const names = $("#bulk").value.split(/[\n,;]+/)
-    .map(s => s.replace(/^\s*([-*•]|\d+[.)])\s*/, "").trim()).filter(Boolean);
-  if (!names.length) return;
-  if (state.example){ state.people = []; state.exclusions = []; state.example = false; state.draw = null; }
-  state.people = state.people.filter(p => p.name.trim() || p.phone.trim() || p.hint.trim());
-  const have = new Set(state.people.map(p => p.name.trim().toLocaleLowerCase("de")));
-  for (const n of names){
-    const k = n.toLocaleLowerCase("de");
-    if (!have.has(k)){ state.people.push(newPerson(n.slice(0, 40))); have.add(k); }
-  }
-  $("#bulk").value = "";
-  save(); renderOrganizer();
-});
-["event", "budget", "date", "note", "baseUrl"].forEach(id => {
-  $("#" + id).addEventListener("input", e => { state[id] = e.target.value; save(); renderDraw(); });
-});
-$("#noMutual").addEventListener("change", e => { state.noMutual = e.target.checked; save(); renderDraw(); });
-$("#exAdd").addEventListener("click", () => {
-  const a = $("#exA").value, b = $("#exB").value, msg = $("#exMsg");
-  if (!a || !b){ msg.textContent = "Wähle zwei Personen aus."; return; }
-  if (a === b){ msg.textContent = "Wähle zwei verschiedene Personen."; return; }
-  const k = [a, b].sort().join("|");
-  if (state.exclusions.some(e => e.slice().sort().join("|") === k)){ msg.textContent = "Diesen Ausschluss gibt es schon."; return; }
-  msg.textContent = "";
-  state.exclusions.push([a, b]);
-  $("#exA").value = ""; $("#exB").value = "";
-  save(); renderExclusions(); renderDraw();
-});
-$("#exList").addEventListener("click", e => {
-  const b = e.target.closest("[data-unex]"); if (!b) return;
-  state.exclusions.splice(Number(b.dataset.unex), 1);
-  save(); renderExclusions(); renderDraw();
+    const r = await api("register", { name, pin, wishes: $("#rWishes").value, avoid: $("#rAvoid").value });
+    if (!r.ok){ msg.textContent = r.error; return; }
+    lsSet("name", r.name || name);
+    $("#rOk").innerHTML = r.created
+      ? `<strong>✓ Du bist dabei, ${esc(r.name || name)}!</strong><span>Merk dir deine PIN. Am ${esc(deadlineLabel())} wird ausgelost, dann siehst du hier, wen du beschenkst.</span>`
+      : `<strong>✓ Gespeichert</strong><span>Deine Angaben sind aktualisiert.</span>`;
+    $("#rOk").hidden = false;
+    $("#rPin").value = "";
+    $("#rOk").scrollIntoView({ block:"nearest", behavior:"smooth" });
+    load(true);
+  }catch(err){ msg.textContent = "Keine Verbindung. Bitte versuch es noch einmal."; }
+  finally{ busy(btn, false); }
 });
 
-function validate(){
-  const names = state.people.map(p => p.name.trim());
-  if (names.filter(Boolean).length < 3) return "Ihr braucht mindestens 3 Personen mit Namen.";
-  if (names.some(n => !n)) return "Eine Zeile hat noch keinen Namen. Füll sie aus oder entferne sie mit ×.";
-  const low = names.map(n => n.toLocaleLowerCase("de"));
-  const dupIdx = low.findIndex((n, i) => low.indexOf(n) !== i);
-  if (dupIdx >= 0) return `„${names[dupIdx]}“ kommt doppelt vor. Unterscheide die Namen, zum Beispiel „Lisa K.“ und „Lisa M.“.`;
-  return "";
+function credsFromForm(){
+  const name = $("#rName").value.trim(), pin = $("#rPin").value.trim();
+  if (!name || !/^\d{4}$/.test(pin)){ $("#rMsg").textContent = "Gib oben deinen Namen und deine 4-stellige PIN ein."; return null; }
+  return { name, pin };
 }
-function doDraw(){
-  const err = validate();
-  if (err){ renderDraw(); const m = $("#drawMsg"); if (m) m.textContent = err; return; }
-  const res = runDraw(state.people.map(p => p.id), state.exclusions, !!state.noMutual);
-  if (!res){ renderDraw(); const m = $("#drawMsg"); if (m) m.textContent = "Mit diesen Ausschlüssen geht keine Ziehung auf. Entferne einen Ausschluss und zieh noch einmal."; return; }
-  state.draw = { assign:res.assign, relaxed:res.relaxed, sig:sig(), at:todayISO(), sent:{} };
-  ui.confirmRedraw = false; ui.showAll = false;
-  save(); renderDraw();
-}
-$("#drawArea").addEventListener("click", e => {
-  const t = e.target;
-  if (t.closest("#drawBtn") || t.closest("#redrawYes")){ doDraw(); return; }
-  if (t.closest("#redrawAsk")){ ui.confirmRedraw = true; renderDraw(); return; }
-  if (t.closest("#redrawNo")){ ui.confirmRedraw = false; renderDraw(); return; }
-  const wa = t.closest("[data-wa]");
-  if (wa){
-    if (!baseUrl()){ e.preventDefault(); return; }
-    state.draw.sent[wa.dataset.wa] = true; save();
-    setTimeout(renderDraw, 400);
+
+$("#rLoad").addEventListener("click", async e => {
+  const c = credsFromForm(); if (!c) return;
+  const btn = e.currentTarget; $("#rMsg").textContent = ""; $("#rOk").hidden = true;
+  busy(btn, true);
+  try{
+    const r = await api("me", c);
+    if (!r.ok){ $("#rMsg").textContent = r.error; return; }
+    $("#rName").value = r.me.name; $("#rWishes").value = r.me.wishes || ""; $("#rAvoid").value = r.me.avoid || "";
+    $("#rOk").innerHTML = `<strong>✓ Geladen</strong><span>Ändere, was du willst, und tippe auf „Ich bin dabei“ zum Speichern.</span>`;
+    $("#rOk").hidden = false;
+  }catch(err){ $("#rMsg").textContent = "Keine Verbindung. Bitte versuch es noch einmal."; }
+  finally{ busy(btn, false); }
+});
+
+$("#rLeave").addEventListener("click", async e => {
+  const btn = e.currentTarget;
+  const c = credsFromForm(); if (!c) return;
+  if (!btn.dataset.armed){
+    btn.dataset.armed = "1"; btn.textContent = "Wirklich abmelden?";
+    setTimeout(() => { delete btn.dataset.armed; btn.textContent = "Abmelden"; }, 5000);
     return;
   }
-  const pill = t.closest("[data-sent]");
-  if (pill){ const id = pill.dataset.sent; state.draw.sent[id] = !state.draw.sent[id]; save(); renderDraw(); return; }
-  const cp = t.closest("[data-copy]");
-  if (cp){ copyText(personalMsg(cp.dataset.copy), cp); return; }
-  const cg = t.closest("[data-copygroup]");
-  if (cg){ copyText(groupMsg(), cg); return; }
-});
-$("#allList").addEventListener("click", e => {
-  if (e.target.closest("#showAll")){ ui.showAll = true; renderAll_list(); }
-  if (e.target.closest("#hideAll")){ ui.showAll = false; renderAll_list(); }
+  delete btn.dataset.armed;
+  busy(btn, true);
+  try{
+    const r = await api("leave", c);
+    if (!r.ok){ $("#rMsg").textContent = r.error; return; }
+    $("#rWishes").value = ""; $("#rAvoid").value = ""; $("#rPin").value = "";
+    $("#rOk").innerHTML = `<strong>Du bist abgemeldet.</strong><span>Du kannst dich bis zum Anmeldeschluss jederzeit wieder anmelden.</span>`;
+    $("#rOk").hidden = false;
+    load(true);
+  }catch(err){ $("#rMsg").textContent = "Keine Verbindung. Bitte versuch es noch einmal."; }
+  finally{ busy(btn, false); btn.textContent = "Abmelden"; }
 });
 
-// ---------- Wichtelpost ----------
-let openTimer = null;
-function showReveal(p){
-  $("#org").hidden = true; $("#broken").hidden = true; $("#reveal").hidden = false;
-  $("#rvEvent").textContent = p.event || "Wichteln";
-  $("#rvGiver").textContent = p.giver;
-  $("#rvTo").textContent = p.giver;
-  $("#rvNot").textContent = p.giver;
-  const budget = String(p.budget || "").trim();
-  const date = fmtDate(p.date);
-  const line = [];
-  if (budget) line.push(`Budget <b>max. ${esc(budget)} €</b>`);
-  if (date) line.push(`Bescherung <b>${esc(date)}</b>`);
-  $("#rvFactsLine").innerHTML = line.map(x => `<span>${x}</span>`).join("");
-  $("#rvFactsLine").hidden = !line.length;
-  $("#rvRecipient").textContent = p.recipient;
-  $("#rvPostmark").innerHTML = `Wichtel&shy;post<br>${p.at ? "gezogen<br>" + esc(fmtDate(p.at)) : ""}`;
-  const facts = [];
-  facts.push(`<div class="fact"><span>Budget</span><strong>${budget ? "max. " + esc(budget) + " €" : "frei"}</strong></div>`);
-  facts.push(`<div class="fact"><span>Bescherung</span><strong>${date ? esc(date) : "folgt"}</strong></div>`);
-  $("#rvFacts").innerHTML = facts.join("");
-  $("#rvWish").innerHTML = p.hint
-    ? `<span>Wünsche und Hinweise von ${esc(p.recipient)}</span><p>${esc(p.hint)}</p>`
-    : `<span>Wünsche und Hinweise</span><p>Keine angegeben. Hör dich unauffällig um.</p>`;
-  $("#rvNote").innerHTML = p.note ? `<span>Vom Organisator</span><p>${esc(p.note)}</p>` : "";
-  $("#rvNote").hidden = !p.note;
+// ---------- Ergebnis ----------
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("#lSubmit"), msg = $("#lMsg");
+  const name = $("#lName").value, pin = $("#lPin").value.trim();
+  msg.textContent = "";
+  if (!name){ msg.textContent = "Bitte wähl deinen Namen."; return; }
+  if (!/^\d{4}$/.test(pin)){ msg.textContent = "Die PIN hat 4 Ziffern."; return; }
+  busy(btn, true);
+  try{
+    const r = await api("me", { name, pin });
+    if (!r.ok){ msg.textContent = r.error; return; }
+    if (!r.drawn){ load(); return; }
+    lsSet("name", r.giver);
+    cur = { name: r.giver, pin };
+    showReveal(r);
+  }catch(err){ msg.textContent = "Keine Verbindung. Bitte versuch es noch einmal."; }
+  finally{ busy(btn, false); }
+});
+
+function showReveal(r){
+  $("#rvGiver").textContent = r.giver;
+  $("#rvTo").textContent = r.giver;
+  $("#rvRecipient").textContent = r.recipient;
+  $("#rvPostmark").innerHTML = `Wichtel&shy;post<br>gezogen<br>${esc(String(r.drawnAt || "").split(" ")[0])}`;
+  const b = String(r.budget || "").trim();
+  $("#rvFacts").innerHTML =
+    `<div class="fact"><span>Budget</span><strong>${b ? "max. " + esc(b) + " €" : "frei"}</strong></div>` +
+    `<div class="fact"><span>Bescherung</span><strong>${r.date ? esc(r.date) : "folgt"}</strong></div>`;
+  $("#rvWish").innerHTML = r.wishes
+    ? `<span>Wünsche und Hinweise von ${esc(r.recipient)}</span><p style="white-space:pre-line">${esc(r.wishes)}</p>`
+    : `<span>Wünsche und Hinweise</span><p>Noch keine eingetragen. Schau später wieder vorbei oder hör dich unauffällig um.</p>`;
+  $("#rvNote").innerHTML = r.note ? `<span>Vom Organisator</span><p>${esc(r.note)}</p>` : "";
+  $("#rvNote").hidden = !r.note;
+  $("#myWishes").value = (r.me && r.me.wishes) || "";
+  $("#wOk").hidden = true; $("#wMsg").textContent = "";
   closeEnvelope();
+  show("vReveal");
+  window.scrollTo({ top: 0 });
 }
+
+let openTimer = null;
 function closeEnvelope(){
   clearTimeout(openTimer);
-  const env = $("#env");
-  env.classList.remove("open", "gone");
+  $("#env").classList.remove("open", "gone");
   $("#closedPart").hidden = false;
   $("#letter").hidden = true; $("#letter").classList.remove("rise");
 }
 function openEnvelope(){
   const env = $("#env");
   if (env.classList.contains("open")) return;
-  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const show = () => {
+  const showLetter = () => {
     $("#closedPart").hidden = true;
     const L = $("#letter"); L.hidden = false;
-    if (!reduce) L.classList.add("rise");
-    L.focus({ preventScroll:true });
-    L.scrollIntoView({ block:"nearest", behavior: reduce ? "auto" : "smooth" });
+    if (!REDUCE) L.classList.add("rise");
+    L.focus({ preventScroll: true });
+    L.scrollIntoView({ block: "nearest", behavior: REDUCE ? "auto" : "smooth" });
   };
   env.classList.add("open");
   confetti($("#seal"));
-  if (reduce){ show(); return; }
-  openTimer = setTimeout(() => { env.classList.add("gone"); openTimer = setTimeout(show, 300); }, 820);
+  if (REDUCE){ showLetter(); return; }
+  openTimer = setTimeout(() => { env.classList.add("gone"); openTimer = setTimeout(showLetter, 300); }, 820);
 }
 $("#seal").addEventListener("click", openEnvelope);
-$("#closeAgain").addEventListener("click", () => { closeEnvelope(); window.scrollTo({ top:0 }); });
+$("#closeAgain").addEventListener("click", () => { closeEnvelope(); window.scrollTo({ top: 0 }); });
+
+$("#saveWishes").addEventListener("click", async e => {
+  if (!cur) return;
+  const btn = e.currentTarget, msg = $("#wMsg");
+  msg.textContent = ""; $("#wOk").hidden = true;
+  busy(btn, true);
+  try{
+    const r = await api("wishes", { name: cur.name, pin: cur.pin, wishes: $("#myWishes").value });
+    if (!r.ok){ msg.textContent = r.error; return; }
+    $("#wOk").hidden = false;
+  }catch(err){ msg.textContent = "Keine Verbindung. Bitte versuch es noch einmal."; }
+  finally{ busy(btn, false); }
+});
+
+$("#logout").addEventListener("click", () => {
+  cur = null; $("#lPin").value = ""; $("#lMsg").textContent = "";
+  renderLogin(); show("vLogin", "vNames"); window.scrollTo({ top: 0 });
+});
+$("#retry").addEventListener("click", () => load());
+$("#retry2").addEventListener("click", () => location.reload());
+window.addEventListener("hashchange", () => { cur = null; S = null; load(); });
 
 // ---------- Schneefall im Kopf ----------
 const REDUCE = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -974,30 +786,10 @@ function confetti(fromEl){
   requestAnimationFrame(step);
 }
 
-// ---------- Ansicht wählen ----------
-function route(){
-  let h = "";
-  try{ h = decodeURIComponent(location.hash.slice(1)); }catch(e){ h = location.hash.slice(1); }
-  if (/^w-/i.test(h)){
-    const p = decodePayload(h.slice(2));
-    if (p){ showReveal(p); window.scrollTo({ top:0 }); return; }
-    $("#org").hidden = true; $("#reveal").hidden = true; $("#broken").hidden = false;
-    return;
-  }
-  $("#reveal").hidden = true; $("#broken").hidden = true; $("#org").hidden = false;
-  renderOrganizer();
-}
-window.addEventListener("hashchange", route);
-
-function start(data){
-  if (data && data.state && Array.isArray(data.state.people)) state = data.state;
-  else { const s = load(); if (s) state = s; }
-  route();
-  startSnow();
-}
-if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => ({ state }));
-if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
-else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+// ---------- Start ----------
+load();
+startSnow();
+setInterval(() => { if (!document.hidden && !cur) load(true); }, 120000);
 </script>
 </body>
 </html>

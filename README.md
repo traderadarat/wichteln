@@ -1,33 +1,34 @@
 # Wichteln
 
-Kleine Web-App fürs Familien-Wichteln über WhatsApp.
+Kleine Web-App fürs Familien-Wichteln, die selbstständig läuft.
 
 ## So funktioniert es
 
-1. **Organisator** öffnet die Seite, trägt die Teilnehmer ein (optional Telefonnummer und Wünsche), legt Budget, Datum, Notiz und Ausschlüsse fest (z. B. Paare ziehen sich nicht).
-2. **Lose ziehen:** Die Seite lost zufällig aus. Niemand zieht sich selbst, Ausschlüsse werden eingehalten, auf Wunsch beschenkt sich niemand gegenseitig.
-3. **Verschicken:** Für jede Person entsteht ein persönlicher Link (WhatsApp-Knopf oder Kopieren). Wer den Link öffnet, sieht einen Umschlag mit Siegel und nach dem Antippen, wen er oder sie beschenkt.
+1. Der Organisator schickt einmal den Familien-Link (mit Familien-Code nach `#k-`) in die Familiengruppe.
+2. Jede Person trägt sich selbst ein: Name, Wünsche, wen sie nicht ziehen soll, und eine selbst gewählte 4-stellige PIN.
+3. Beim Anmeldeschluss lost die App automatisch aus: Niemand zieht sich selbst, Ausschlüsse werden eingehalten, möglichst beschenkt sich niemand gegenseitig.
+4. Danach sieht jede Person mit Name und PIN, wen sie beschenkt, samt deren aktuellen Wünschen. Die eigenen Wünsche lassen sich auch nach der Auslosung noch ändern.
 
-Der Organisator sieht die Zuteilung nicht und kann selbst mitspielen. Unter „Erweitert“ gibt es eine Gesamtliste für den Fall, dass der Organisator nicht mitspielt.
+## Aufbau
 
-## Persönlich machen
-
-- Überschrift: Feld „Name der Runde“ auf der Seite ausfüllen. Sie steht dann oben und in jedem Link.
-- Voreinstellungen (Budget, Datum, Startüberschrift) im `CONFIG`-Block ganz oben im Script von `index.html`.
+- `index.html`: die Seite (dieses Repository, GitHub Pages)
+- Die Anmeldungen speichert eine Google-Apps-Script-Web-App im Google-Konto des Organisators, in einer privaten Google-Tabelle. Der Code dafür liegt bewusst nicht in diesem öffentlichen Repository.
+- Ohne gültigen Familien-Code liefert die Schnittstelle keine Daten.
 
 ## Datenschutz
 
-- **Kein Server, keine Anmeldung.** Die Zuteilung steckt verschleiert im persönlichen Link (nach dem `#`). Dieser Teil der Adresse wird vom Browser nicht an den Webserver geschickt.
-- **Eingaben des Organisators** (Namen, Telefonnummern, Wünsche) bleiben im `localStorage` seines Browsers. Sie stehen nicht im Code und nicht im Repository.
-- **Schriften lokal** im Ordner `fonts/`. Es gibt keine Verbindung zu Google Fonts oder anderen Drittservern.
-- **GitHub Pages** protokolliert laut eigener Dokumentation die IP-Adressen der Besucher.
-- **noindex:** Suchmaschinen sollen die Seite nicht aufnehmen.
-- Die Verschleierung ist kein echter Tresor. Wer es darauf anlegt, kann einen Link entschlüsseln. Für ein Familienspiel reicht es.
+- Gespeichert werden nur Name, Wünsche, „zieht nicht“ und die PIN (als SHA-256-Hash mit Salt, nicht im Klartext).
+- Keine Telefonnummern, keine E-Mail-Adressen, keine Konten, keine Cookies, keine Werbung, kein Tracking.
+- Der Browser merkt sich im `localStorage` nur den Familien-Code und den eigenen Namen.
+- Schriften liegen lokal im Ordner `fonts/`, es gibt keine Verbindung zu Google Fonts.
+- GitHub Pages und Google protokollieren laut eigener Dokumentation die IP-Adressen der Aufrufe.
+- Am eingestellten Löschdatum werden alle Anmeldungen und die Auslosung automatisch gelöscht.
+- `noindex`: Suchmaschinen sollen die Seite nicht aufnehmen.
 
 ## Dateien
 
-- `index.html`: die ganze App (HTML, CSS, JavaScript in einer Datei)
-- `fonts/`: Schriften Atkinson Hyperlegible und Bricolage Grotesque, beide unter der SIL Open Font License 1.1 (Lizenztexte liegen daneben)
+- `index.html`: Seite mit HTML, CSS und JavaScript in einer Datei
+- `fonts/`: Atkinson Hyperlegible und Bricolage Grotesque, SIL Open Font License 1.1 (Lizenztexte liegen daneben)
 - `vorschau.jpg`: Vorschaubild für WhatsApp-Links
 
-Erstellt am 16.11.2026.
+Stand: 16.11.2026
